@@ -3,7 +3,7 @@
 This repository contains documentation on how to create native WireGuard and OpenVPN connections, and also on how to enable Port Forwarding in case you require this feature. You will find a lot of information below. However if you prefer quick test, here is the __TL/DR__:
 
 ```
-git clone https://github.com/pia-foss/manual-connections.git
+git clone https://github.com/jyriturkia/pia-systemd.git
 cd manual-connections
 sudo ./run_setup.sh
 ```
@@ -173,7 +173,7 @@ If you run curl on the same machine (the one that is connected to the VPN), you 
 
 ## Thanks
 
-A big special thanks to [faireOwl](https://github.com/faireOwl) for his contributions to this repo.
+A big special thanks to [faireOwl](https://github.com/faireOwl) for his contributions.
 
 ## License
 This project is licensed under the [MIT (Expat) license](https://choosealicense.com/licenses/mit/), which can be found [here](/LICENSE).
