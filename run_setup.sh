@@ -43,8 +43,9 @@ if (( EUID != 0 )); then
   exit 1
 fi
 
+tokenLocation="/opt/piavpn-manual/token"
 # Erase previous authentication token if present
-rm -f /opt/piavpn-manual/token /opt/piavpn-manual/latencyList
+rm -f $tokenLocation /opt/piavpn-manual/latencyList
 
 # Retry login if no token is generated
 while :; do
@@ -100,7 +101,6 @@ while :; do
   # Confirm credentials and generate token
   ./get_token.sh
 
-  tokenLocation="/opt/piavpn-manual/token"
   # If the script failed to generate an authentication token, the script will exit early.
   if [[ ! -f $tokenLocation ]]; then
     read -r -p "Do you want to try again ([N]o/[y]es): " tryAgain
@@ -110,9 +110,9 @@ while :; do
     PIA_USER=""
     PIA_PASS=""
   else
-    PIA_TOKEN=$( awk 'NR == 1' /opt/piavpn-manual/token )
+    PIA_TOKEN=$( awk 'NR == 1' "$tokenLocation")
     export PIA_TOKEN
-    rm -f /opt/piavpn-manual/token
+    rm -f $tokenLocation
     break
   fi
 done
@@ -188,7 +188,7 @@ fi
 echo
 
 # Erase previous connection details if present
-rm -f /opt/piavpn-manual/token /opt/piavpn-manual/latencyList
+rm -f $tokenLocation /opt/piavpn-manual/latencyList
 
 # Prompt for port forwarding if no DIP or DIP allows it
 if [[ $pfOption = "false" ]]; then
