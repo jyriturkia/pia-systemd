@@ -44,8 +44,10 @@ if (( EUID != 0 )); then
 fi
 
 tokenLocation="/opt/piavpn-manual/token"
+dipDetails="/opt/piavpn-manual/dipAddress"
+latencyList="/opt/piavpn-manual/latencyList"
 # Erase previous authentication token if present
-rm -f $tokenLocation /opt/piavpn-manual/latencyList
+rm -f "$tokenLocation" "$latencyList"
 
 # Retry login if no token is generated
 while :; do
@@ -102,7 +104,7 @@ while :; do
   ./get_token.sh
 
   # If the script failed to generate an authentication token, the script will exit early.
-  if [[ ! -f $tokenLocation ]]; then
+  if [[ ! -f "$tokenLocation" ]]; then
     read -r -p "Do you want to try again ([N]o/[y]es): " tryAgain
     if ! echo "${tryAgain:0:1}" | grep -iq y; then
       exit 1
@@ -110,9 +112,9 @@ while :; do
     PIA_USER=""
     PIA_PASS=""
   else
-    PIA_TOKEN=$( awk 'NR == 1' "$tokenLocation")
+    PIA_TOKEN=$( awk 'NR == 1' "$tokenLocation" )
     export PIA_TOKEN
-    rm -f $tokenLocation
+    rm -f "$tokenLocation"
     break
   fi
 done
@@ -160,7 +162,6 @@ if echo ${useDIP:0:1} | grep -iq y; then
     export DIP_TOKEN
     # Confirm DIP_TOKEN and retrieve connection details
     ./get_dip.sh
-    dipDetails="/opt/piavpn-manual/dipAddress"
     # If the script failed to generate retrieve dedicated IP information, the script will exit early.
       if [ ! -f "$dipDetails" ]; then
         read -p "Do you want to try again ([N]o/[y]es): " tryAgain
@@ -170,11 +171,11 @@ if echo ${useDIP:0:1} | grep -iq y; then
         fi
           DIP_TOKEN=""
       else
-        dipAddress=$( awk 'NR == 1' /opt/piavpn-manual/dipAddress )
-        dipHostname=$( awk 'NR == 2' /opt/piavpn-manual/dipAddress)
-        dipKey=$( awk 'NR == 3' /opt/piavpn-manual/dipAddress )
-        pfOption=$( awk 'NR == 5' /opt/piavpn-manual/dipAddress )
-        rm -f /opt/piavpn-manual/dipAddress
+        dipAddress=$( awk 'NR == 1' "$dipDetails" )
+        dipHostname=$( awk 'NR == 2' "$dipDetails" )
+        dipKey=$( awk 'NR == 3' "$dipDetails" )
+        pfOption=$( awk 'NR == 5' "$dipDetails" )
+        rm -f "$dipDetails"
         break
       fi
   done
@@ -188,7 +189,7 @@ fi
 echo
 
 # Erase previous connection details if present
-rm -f $tokenLocation /opt/piavpn-manual/latencyList
+rm -f "$tokenLocation" "$latencyList"
 
 # Prompt for port forwarding if no DIP or DIP allows it
 if [[ $pfOption = "false" ]]; then
@@ -333,23 +334,23 @@ if [[ -z $DIP_TOKEN ]]; then
         export VPN_PROTOCOL
         VPN_PROTOCOL=no ./get_region.sh
 
-        if [[ -s /opt/piavpn-manual/latencyList ]]; then
+        if [[ -s "$latencyList" ]]; then
           # Output the ordered list of servers that meet the latency specification $MAX_LATENCY
           echo -e "Ordered list of servers with latency less than ${green}$MAX_LATENCY${nc} seconds:"
           i=0
           while read -r line; do
             i=$((i+1))
-            time=$( awk 'NR == '$i' {print $1}' /opt/piavpn-manual/latencyList )
-            id=$( awk 'NR == '$i' {print $2}' /opt/piavpn-manual/latencyList )
-            ip=$( awk 'NR == '$i' {print $3}' /opt/piavpn-manual/latencyList )
-            location1=$( awk 'NR == '$i' {print $4}' /opt/piavpn-manual/latencyList )
-            location2=$( awk 'NR == '$i' {print $5}' /opt/piavpn-manual/latencyList )
-            location3=$( awk 'NR == '$i' {print $6}' /opt/piavpn-manual/latencyList )
-            location4=$( awk 'NR == '$i' {print $7}' /opt/piavpn-manual/latencyList )
+            time=$( awk 'NR == '$i' {print $1}' "$latencyList" )
+            id=$( awk 'NR == '$i' {print $2}' "$latencyList" )
+            ip=$( awk 'NR == '$i' {print $3}' "$latencyList" )
+            location1=$( awk 'NR == '$i' {print $4}' "$latencyList" )
+            location2=$( awk 'NR == '$i' {print $5}' "$latencyList" )
+            location3=$( awk 'NR == '$i' {print $6}' "$latencyList" )
+            location4=$( awk 'NR == '$i' {print $7}' "$latencyList" )
             location="$location1 $location2 $location3 $location4"
             printf "%3s : %-8s %-15s %23s" $i "$time" "$ip" "$id"
             echo " - $location"
-          done < /opt/piavpn-manual/latencyList
+          done < "$latencyList"
           echo
 
           # Receive input to specify the server to connect to manually
@@ -364,7 +365,7 @@ if [[ -z $DIP_TOKEN ]]; then
               elif [[ $serverSelection -gt $i ]]; then
                 echo -e "\n${red}You must enter a number between 1 and $i.${nc}\n"
               else
-                PREFERRED_REGION=$( awk 'NR == '"$serverSelection"' {print $2}' /opt/piavpn-manual/latencyList )
+                PREFERRED_REGION=$( awk 'NR == '"$serverSelection"' {print $2}' "$latencyList" )
                 echo
                 echo -e "${green}PREFERRED_REGION=$PREFERRED_REGION${nc}"
                 break
@@ -476,7 +477,7 @@ elif [[ $VPN_PROTOCOL == wireguard ]]; then
   PIA_PF=$PIA_PF PIA_TOKEN=$PIA_TOKEN DIP_TOKEN=$DIP_TOKEN \
     WG_SERVER_IP=$dipAddress WG_HOSTNAME=$dipHostname \
     ./connect_to_wireguard_with_token.sh
-  rm -f /opt/piavpn-manual/latencyList
+  rm -f "$latencyList"
   exit 0
 elif [[ $VPN_PROTOCOL == openvpn* ]]; then
   echo
@@ -494,6 +495,6 @@ elif [[ $VPN_PROTOCOL == openvpn* ]]; then
     OVPN_HOSTNAME=$dipHostname \
     CONNECTION_SETTINGS=$VPN_PROTOCOL \
     ./connect_to_openvpn_with_token.sh
-  rm -f /opt/piavpn-manual/latencyList
+  rm -f "$latencyList"
   exit 0
 fi
