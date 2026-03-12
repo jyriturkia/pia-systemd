@@ -58,7 +58,12 @@ if (( EUID != 0 )); then
   exit 1
 fi
 
-mkdir -p /opt/piavpn-manual
+workingDir=${workingDir:=/var/piavpn}
+if [[ -z "$tokenLocation" ]]; then
+    tokenLocation=${workingDir%/}"/token"
+fi
+
+mkdir -p "$workingDir"
 
 if [[ -z $PIA_USER || -z $PIA_PASS ]]; then
   echo "If you want this script to automatically get a token from the Meta"
@@ -86,7 +91,6 @@ echo -e "${green}OK!"
 echo
 token=$(echo "$generateTokenResponse" | jq -r '.token')
 tokenExpiration=$(timeout_timestamp)
-tokenLocation=/opt/piavpn-manual/token
 echo -e "PIA_TOKEN=$token${nc}"
 echo "$token" > "$tokenLocation" || exit 1
 echo "$tokenExpiration" >> "$tokenLocation"

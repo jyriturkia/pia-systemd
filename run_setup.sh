@@ -43,9 +43,10 @@ if (( EUID != 0 )); then
   exit 1
 fi
 
-tokenLocation="/opt/piavpn-manual/token"
-dipDetails="/opt/piavpn-manual/dipAddress"
-latencyList="/opt/piavpn-manual/latencyList"
+export workingDir="/opt/piavpn-manual"
+export tokenLocation=${workingDir%/}"/token"
+export dipDetails=${workingDir%/}"/dipAddress"
+export latencyList=${workingDir%/}"/latencyList"
 # Erase previous authentication token if present
 rm -f "$tokenLocation" "$latencyList"
 
