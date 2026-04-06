@@ -1,0 +1,13 @@
+[Unit]
+Description=PIA WireGuard VPN
+Wants=pia-auth.service
+After=pia-auth.service network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/opt/pia/pia-wg-up.sh
+ExecStop=/usr/bin/wg-quick down pia
+
+[Install]
+WantedBy=multi-user.target

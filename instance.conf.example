@@ -1,0 +1,28 @@
+# PIA VPN — per-interface configuration
+# Install to /etc/pia/<instance>.conf
+# e.g. /etc/pia/pia0.conf for: systemctl start pia-wireguard@pia0
+#
+# The filename (minus .conf) becomes the WireGuard interface name.
+
+# Region ID — leave empty for auto-select by lowest latency.
+# Run: pia-discover-regions.sh to list available region IDs.
+PREFERRED_REGION=
+
+# Port forwarding (true/false)
+# When true, pia-portforward@<instance> is started automatically with the VPN.
+# The region must support port forwarding (use PIA_PF=true with pia-discover-regions.sh).
+PIA_PF=false
+
+# Max latency for auto region selection (seconds), only used when PREFERRED_REGION is empty
+MAX_LATENCY=0.05
+
+# WireGuard AllowedIPs — controls what traffic goes through this tunnel.
+# Default: 0.0.0.0/0 (all traffic)
+# Examples:
+#   0.0.0.0/0                         — route everything (full tunnel)
+#   10.88.0.0/16                      — only route podman network
+#   10.88.0.0/16, 192.168.1.0/24     — multiple ranges (comma-separated)
+ALLOWED_IPS=0.0.0.0/0
+
+# Override PIA_DNS from pia.conf for this instance (optional)
+# PIA_DNS=true

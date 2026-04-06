@@ -1,0 +1,13 @@
+[Unit]
+Description=PIA VPN Authentication
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/opt/pia/pia-auth.sh
+RuntimeDirectory=pia
+RuntimeDirectoryMode=0700
+
+[Install]
+WantedBy=multi-user.target

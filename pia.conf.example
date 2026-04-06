@@ -1,0 +1,12 @@
+# PIA VPN — shared configuration
+# Install to /etc/pia/pia.conf
+#
+# Credentials shared across all instances.
+# Per-interface settings go in /etc/pia/<instance>.conf
+
+# PIA credentials
+PIA_USER=p1234567
+PIA_PASS=changeme
+
+# Use PIA DNS servers (true/false) — default for all instances
+PIA_DNS=true

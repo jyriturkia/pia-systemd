@@ -1,0 +1,14 @@
+[Unit]
+Description=PIA Port Forwarding
+After=pia-wireguard.service
+Requires=pia-wireguard.service
+BindsTo=pia-wireguard.service
+
+[Service]
+Type=simple
+ExecStart=/opt/pia/pia-portforward.sh
+Restart=on-failure
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target
