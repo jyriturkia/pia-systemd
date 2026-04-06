@@ -3,21 +3,26 @@
 # Run manually to find region IDs for /etc/pia/<instance>.conf
 #
 # Usage:
-#   ./pia-discover-regions.sh              # all regions
-#   PIA_PF=true ./pia-discover-regions.sh  # only port-forwarding regions
-#   MAX_LATENCY=0.2 ./pia-discover-regions.sh  # 200ms timeout
+#   ./pia-discover-regions.sh               # all regions, 100ms timeout
+#   ./pia-discover-regions.sh -p            # only port-forwarding regions
+#   ./pia-discover-regions.sh -l 200        # 200ms timeout
+#   ./pia-discover-regions.sh -p -l 200     # combined
 set -euo pipefail
 
+MAX_LATENCY_MS=100
+PIA_PF=false
+
+while getopts ":pl:" opt; do
+  case $opt in
+    p) PIA_PF=true ;;
+    l) MAX_LATENCY_MS=$OPTARG ;;
+    *) echo "Usage: $0 [-p] [-l <ms>]" >&2; exit 1 ;;
+  esac
+done
+
+MAX_LATENCY=$(echo "scale=3; ${MAX_LATENCY_MS} / 1000" | bc)
+
 SERVERLIST_URL='https://serverlist.piaservers.net/vpninfo/servers/v6'
-MAX_LATENCY=${MAX_LATENCY:-0.05}
-PIA_PF=${PIA_PF:-false}
-
-# Source config if it exists (for PIA_PF, MAX_LATENCY defaults)
-[[ -f /etc/pia/pia.conf ]] && source /etc/pia/pia.conf
-
-# Allow env overrides after sourcing config
-MAX_LATENCY=${MAX_LATENCY:-0.05}
-PIA_PF=${PIA_PF:-false}
 
 echo "Fetching server list..."
 all_region_data=$(curl -s "$SERVERLIST_URL" | head -1)
@@ -38,7 +43,7 @@ else
      .servers.meta[0].ip + " " + .id + " " + .name + " " + (.geo|tostring)')
 fi
 
-echo "Testing latency (timeout: ${MAX_LATENCY}s)..."
+echo "Testing latency (timeout: ${MAX_LATENCY_MS}ms)..."
 echo
 
 tmpfile=$(mktemp)
@@ -59,9 +64,12 @@ done <<< "$regions"
 
 if [[ ! -s "$tmpfile" ]]; then
   echo "No region responded within ${MAX_LATENCY}s." >&2
-  echo "Try increasing MAX_LATENCY (e.g. MAX_LATENCY=0.2)." >&2
+  echo "Try a higher timeout with -l (e.g. -l 200)." >&2
   exit 1
 fi
+
+printf "  %-8s  %-25s  %s\n" "LATENCY" "REGION_ID" "NAME"
+printf "  %-8s  %-25s  %s\n" "-------" "---------" "----"
 
 sort -n "$tmpfile" | while IFS= read -r line; do
   time=$(echo "$line" | awk '{print $1}')
