@@ -20,7 +20,7 @@ while getopts ":pl:" opt; do
   esac
 done
 
-MAX_LATENCY=$(echo "scale=3; ${MAX_LATENCY_MS} / 1000" | bc)
+MAX_LATENCY=$(printf '0.%03d' "$MAX_LATENCY_MS")
 
 SERVERLIST_URL='https://serverlist.piaservers.net/vpninfo/servers/v6'
 
