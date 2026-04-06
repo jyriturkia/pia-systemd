@@ -8,6 +8,7 @@ Type=oneshot
 ExecStart=/opt/pia/pia-auth.sh
 RuntimeDirectory=pia
 RuntimeDirectoryMode=0700
+RuntimeDirectoryPreserve=yes
 
 [Install]
 WantedBy=multi-user.target
