@@ -9,7 +9,7 @@
 #   ./pia-discover-regions.sh -p -l 200     # combined
 set -euo pipefail
 
-MAX_LATENCY_MS=100
+MAX_LATENCY_MS=50
 PIA_PF=false
 
 while getopts ":pl:" opt; do

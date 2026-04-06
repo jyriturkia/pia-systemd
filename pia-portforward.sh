@@ -12,6 +12,12 @@ PIA_TOKEN=$(cat /run/pia/token)
 CA_CERT=/etc/pia/ca.rsa.4096.crt
 STATE_DIR="/run/pia/${INSTANCE}"
 
+if [[ ! -f $CA_CERT ]]; then
+  echo "ERROR: CA certificate not found at ${CA_CERT}" >&2
+  echo "Copy ca.rsa.4096.crt to /etc/pia/" >&2
+  exit 1
+fi
+
 cleanup() { rm -f "${STATE_DIR}/port"; }
 trap cleanup EXIT
 

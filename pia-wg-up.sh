@@ -15,6 +15,12 @@ SERVERLIST_URL='https://serverlist.piaservers.net/vpninfo/servers/v6'
 STATE_DIR="/run/pia/${INSTANCE}"
 WG_CONF="/etc/wireguard/${INSTANCE}.conf"
 
+if [[ ! -f $CA_CERT ]]; then
+  echo "ERROR: CA certificate not found at ${CA_CERT}" >&2
+  echo "Copy ca.rsa.4096.crt to /etc/pia/" >&2
+  exit 1
+fi
+
 mkdir -p "$STATE_DIR"
 chmod 700 "$STATE_DIR"
 
